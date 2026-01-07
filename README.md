@@ -2,7 +2,7 @@
 > This repository provides Docker-based setup instructions for running selected Annif models
 > for the **LLMs4Subjects / GermEval 2025 shared task**.
 >
-> The official shared-task repository is:
+> The official ANNIF team submission repository is:
 > https://github.com/NatLibFi/Annif-LLMs4Subjects-GermEval2025
 
 # Annif + LLMs4Subjects (GermEval 2025) — Docker Setup
