@@ -1,64 +1,51 @@
-# Annif (Docker) – Windows Quick Start  
-**LLMs4Subjects / GermEval 2025**
+# Annif + LLMs4Subjects (GermEval 2025) — Docker Setup
 
-This guide explains how to run **Annif on Windows using Docker**, download GermEval 2025 Annif projects from Hugging Face, and run a first prediction.
+This repository provides **step-by-step instructions** to run selected **Annif models** for the **LLMs4Subjects / GermEval 2025 shared task** using **Docker on Windows**.
 
-This setup:
-- avoids native Windows build issues
-- does **not** require a local (PyPI) Annif installation
-- follows the Annif-recommended execution model
-
----
-
-## 0) Prerequisites
-
-- **Windows 10 / 11**
-- **Docker Desktop** installed and running  
-  - WSL2 backend enabled  
-  - ≥ **8 GB RAM** allocated to Docker (recommended)
+The goal is to make the setup:
+- reproducible,
+- backend-compatible,
+- aligned with the officially released Annif backends and models.
 
 ---
 
-## 1) Create a workspace directory (Windows)
+## 1) Prerequisites
 
-Choose a directory on Windows where Annif will store all data:
+- **Docker Desktop** for Windows  
+  https://docs.docker.com/desktop/install/windows-install/
 
-```
-C:\Users\DSouzaJ\Code\annif-subjectindexer
-```
-
-Create it if it does not exist.
-
-> This directory will be mounted into the container and is the **only persistent location**.  
-> All Annif projects, models, and vocabularies will be stored here.
+Make sure Docker is running and has **at least 8 GB of memory** allocated.
 
 ---
 
-## 2) Start the Annif Docker container (interactive shell)
+## 2) Create a local working directory
 
-Open **Windows CMD** and run:
+Choose (or create) a directory on your machine that will hold all Annif data.
+
+Example (Windows):
 
 ```bat
-cd /d C:\Users\DSouzaJ\Code\annif-subjectindexer
+mkdir C:\path\to\annif-projects
+cd /d C:\path\to\annif-projects
+```
 
+> This directory will be mounted into the Docker container and is the **only place where data persists**.
+
+---
+
+## 3) Start the Annif Docker container (interactive shell)
+
+From the directory you just created, run:
+
+```bat
 docker run -it --rm ^
   -v "%cd%":/annif-projects ^
   quay.io/natlibfi/annif bash
 ```
 
-What this does:
-- automatically pulls the Annif Docker image if it is not present
-- starts an interactive Linux container with Annif installed
-- mounts the current Windows directory at `/annif-projects`
-- ensures all downloaded data persists on Windows
-
 ---
 
-## 3) Inside the container: verify setup
-
-You should already be in `/annif-projects`.
-
-Run:
+## 4) Verify Annif inside the container
 
 ```bash
 pwd
@@ -66,225 +53,91 @@ ls
 annif --version
 ```
 
-Expected:
-- `pwd` → `/annif-projects`
-- `ls` → empty directory (initially)
-- `annif --version` → Annif version (e.g. `1.5.0.dev0`)
+---
+
+## 5) Browse available GermEval 2025 models
+
+- Hugging Face: https://huggingface.co/NatLibFi/Annif-LLMs4Subjects-GermEval2025-data  
+- Paper: https://arxiv.org/pdf/2508.15877
+
+⚠️ Not all models are runnable with released Annif backends.
 
 ---
 
-## 4) Choose which models to download
+## 6) Download GermEval 2025 Annif projects
 
-Before downloading projects, you may want to **inspect which models are available and which are relevant for your use case**.
-
-- Full list of available Annif projects:  
-  https://huggingface.co/NatLibFi/Annif-LLMs4Subjects-GermEval2025-data
-
-- Evaluation results and performance comparison:  
-  https://arxiv.org/pdf/2508.15877
-
-The paper reports which model families perform best for GermEval 2025 subject indexing.
-
-### Important note on backend availability
-
-Not all projects listed on Hugging Face can currently be **executed with a standard Annif installation**.
-
-- Some projects depend on **experimental or unreleased backends**
-  (e.g. `xtransformer`, `llm_ensemble`)
-- These backends are **not part of the stable Annif release**
-  and are **not included** in the default Docker image
-
-As a result:
-- All projects can be **downloaded**
-- Only projects whose backends are available can be **run**
-
-With the default Docker setup, the following project families are runnable:
-
-- **BM ensemble** (`gnd-bm-ensemble-*`)
-- **Omikuji Bonsai** (`gnd-bonsai-*`)
-- **MLLM** (`gnd-mllm-*`)
-
-Projects such as:
-- `gnd-xtransformer-*`
-- `gnd-bmx-llm_ensemble-*`
-
-will appear in `annif list-projects` but **cannot be executed** unless their corresponding backends are released and installed via a custom Annif build.
-
----
-
-## 5) Download GermEval projects from Hugging Face
-
-From inside the container, download either **all** projects or a **selected subset**.
-
-### Option A: Download all GND projects
 ```bash
 annif download --trust-repo "gnd-*" NatLibFi/Annif-LLMs4Subjects-GermEval2025-data
 ```
-
-### Option B: Download only BM ensemble projects
-```bash
-annif download --trust-repo "gnd-bm-ensemble-*" NatLibFi/Annif-LLMs4Subjects-GermEval2025-data
-```
-
-### Option C: Download only Omikuji Bonsai projects
-```bash
-annif download --trust-repo "gnd-bonsai-*" NatLibFi/Annif-LLMs4Subjects-GermEval2025-data
-```
-
-### Option D: Download a single project (example: German only)
-```bash
-annif download --trust-repo "gnd-bonsai-de" NatLibFi/Annif-LLMs4Subjects-GermEval2025-data
-```
-
-### What gets created locally
-
-These commands download and extract:
-
-- `projects.d/` – Annif project configuration files
-- `data/` – model data and training artifacts (can be large)
-- `vocabs/` – vocabularies (e.g. GND)
-
-Verify:
-
-```bash
-ls
-ls projects.d
-```
-
----
-
-## 6) List available projects
-
-```bash
-annif list-projects
-```
-
-Notes:
-- Warnings about missing backends (`xtransformer`, `llm_ensemble`) are expected
-- Downloaded and runnable projects will be listed normally
 
 ---
 
 ## 7) Run a first prediction
 
-In this setup, we recommend starting with either the **BM ensemble** or the **Omikuji Bonsai** projects.
-These models are fully runnable with the default Annif Docker image and are also well motivated by the
-GermEval 2025 evaluation results (see Section 4.5 and Table 2 of the paper).
+### BM ensemble (recommended)
 
-### Recommended: BM ensemble
-
-The BM ensemble combines Bonsai and MLLM in a simple weighted ensemble and achieved strong performance
-in the GermEval 2025 evaluation.
-
-**German**
 ```bash
 echo "Dies ist ein kurzer Text über Bibliotheken und Metadaten." | annif suggest gnd-bm-ensemble-de -
-```
-
-**English**
-```bash
 echo "This text is about libraries and metadata." | annif suggest gnd-bm-ensemble-en -
 ```
 
-### Recommended: Omikuji Bonsai (single model)
+### Omikuji Bonsai
 
-The Bonsai model alone already provides strong performance and contributes the majority of the weight
-in the BM ensemble (≈ 85–90%).
-
-**German**
 ```bash
 echo "Dies ist ein kurzer Text über Bibliotheken und Metadaten." | annif suggest gnd-bonsai-de -
-```
-
-**English**
-```bash
 echo "This text is about libraries and metadata." | annif suggest gnd-bonsai-en -
 ```
 
-### Optional: MLLM (single model)
+### Optional: MLLM
 
-The MLLM backend is also available in the default Annif Docker image and can be tested independently.
-It plays a minor role in the BM ensemble but may still be of interest for exploratory experiments.
-
-**German**
-```bash
-echo "Dies ist ein kurzer Text über Bibliotheken und Metadaten." | annif suggest gnd-mllm-de -
-```
-
-**English**
 ```bash
 echo "This text is about libraries and metadata." | annif suggest gnd-mllm-en -
 ```
 
-### Notes on unsupported ensembles
-
-The paper reports higher scores for BMX ensembles, especially those involving XTransformer and
-LLM-ranked fusion. However, the corresponding backends are not included in the current Annif releases
-and therefore cannot be executed with the provided Docker image.
-
-As a result, this repository focuses on:
-- BM ensemble
-- Bonsai
-- MLLM
-
-which together form a reproducible and officially supported baseline aligned with the GermEval 2025 results.
-
-If Annif returns subject suggestions for any of the commands above, the setup is working correctly.
-
 ---
 
-## 8) Stop the container
+## Citations
 
-To stop and exit the container, run:
+### Annif at GermEval 2025
 
-```bash
-exit
+```bibtex
+@inproceedings{suominen2025annif,
+  title={Annif at the GermEval-2025 LLMs4Subjects Task: Traditional XMTC Augmented by Efficient LLMs},
+  author={Suominen, Osma and Inkinen, Juho and Lehtinen, Mona},
+  booktitle={Proceedings of the 21st Conference on Natural Language Processing (KONVENS 2025): Workshops},
+  pages={447--454},
+  year={2025}
+}
 ```
 
-Because the container was started with `--rm`:
-- the container is removed automatically
-- all data remains in  
-  `C:\Users\DSouzaJ\Code\annif-subjectindexer`
+### SemEval-2025 Task 5: LLMs4Subjects
 
----
-
-## 9) Restart later
-
-To restart Annif at any time:
-
-```bat
-cd /d C:\Users\DSouzaJ\Code\annif-subjectindexer
-
-docker run -it --rm ^
-  -v "%cd%":/annif-projects ^
-  quay.io/natlibfi/annif bash
+```bibtex
+@inproceedings{dsouza-etal-2025-semeval,
+  title = {{S}em{E}val-2025 Task 5: {LLM}s4{S}ubjects - {LLM}-based Automated Subject Tagging for a National Technical Library's Open-Access Catalog},
+  author = {D'Souza, Jennifer and Sadruddin, Sameer and Israel, Holger and Begoin, Mathias and Slawig, Diana},
+  booktitle = {Proceedings of the 19th International Workshop on Semantic Evaluation (SemEval-2025)},
+  year = {2025},
+  publisher = {Association for Computational Linguistics},
+  url = {https://aclanthology.org/2025.semeval-1.328/}
+}
 ```
 
-Then inside the container:
+### GermEval 2025 Shared Task Dataset
 
-```bash
-annif list-projects
-```
-
-No re-download is required unless files were deleted.
-
----
-
-## Optional: update the Annif Docker image
-
-```bat
-docker pull quay.io/natlibfi/annif:latest
+```bibtex
+@misc{D_Souza_The_GermEval_2025_2025,
+  author = {D'Souza, Jennifer and Sadruddin, Sameer and Israel, Holger and Begoin, Mathias and Slawig, Diana},
+  title = {{The GermEval 2025 2nd LLMs4Subjects Shared Task Dataset}},
+  year = {2025},
+  doi = {10.5281/zenodo.16743609},
+  url = {https://github.com/sciknoworg/llms4subjects}
+}
 ```
 
 ---
 
-## Summary
+## Related repositories
 
-- Windows-friendly
-- No PyPI install required
-- Reproducible and persistent
-- Transparent about backend limitations
-- Aligned with GermEval 2025 baselines
-
-This README describes the recommended baseline setup for running Annif in the context of
-**LLMs4Subjects / GermEval 2025**.
+- Official Annif + GermEval repository:  
+  https://github.com/NatLibFi/Annif-LLMs4Subjects-GermEval2025
