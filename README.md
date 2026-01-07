@@ -167,17 +167,69 @@ Notes:
 
 ## 7) Run a first prediction
 
-### German (Omikuji Bonsai)
+In this setup, we recommend starting with either the **BM ensemble** or the **Omikuji Bonsai** projects.
+These models are fully runnable with the default Annif Docker image and are also well motivated by the
+GermEval 2025 evaluation results (see Section 4.5 and Table 2 of the paper).
+
+### Recommended: BM ensemble
+
+The BM ensemble combines Bonsai and MLLM in a simple weighted ensemble and achieved strong performance
+in the GermEval 2025 evaluation.
+
+**German**
+```bash
+echo "Dies ist ein kurzer Text über Bibliotheken und Metadaten." | annif suggest gnd-bm-ensemble-de -
+```
+
+**English**
+```bash
+echo "This text is about libraries and metadata." | annif suggest gnd-bm-ensemble-en -
+```
+
+### Recommended: Omikuji Bonsai (single model)
+
+The Bonsai model alone already provides strong performance and contributes the majority of the weight
+in the BM ensemble (≈ 85–90%).
+
+**German**
 ```bash
 echo "Dies ist ein kurzer Text über Bibliotheken und Metadaten." | annif suggest gnd-bonsai-de -
 ```
 
-### English (MLLM)
+**English**
+```bash
+echo "This text is about libraries and metadata." | annif suggest gnd-bonsai-en -
+```
+
+### Optional: MLLM (single model)
+
+The MLLM backend is also available in the default Annif Docker image and can be tested independently.
+It plays a minor role in the BM ensemble but may still be of interest for exploratory experiments.
+
+**German**
+```bash
+echo "Dies ist ein kurzer Text über Bibliotheken und Metadaten." | annif suggest gnd-mllm-de -
+```
+
+**English**
 ```bash
 echo "This text is about libraries and metadata." | annif suggest gnd-mllm-en -
 ```
 
-If Annif returns subject suggestions, the setup is working.
+### Notes on unsupported ensembles
+
+The paper reports higher scores for BMX ensembles, especially those involving XTransformer and
+LLM-ranked fusion. However, the corresponding backends are not included in the current Annif releases
+and therefore cannot be executed with the provided Docker image.
+
+As a result, this repository focuses on:
+- BM ensemble
+- Bonsai
+- MLLM
+
+which together form a reproducible and officially supported baseline aligned with the GermEval 2025 results.
+
+If Annif returns subject suggestions for any of the commands above, the setup is working correctly.
 
 ---
 
@@ -191,7 +243,7 @@ exit
 
 Because the container was started with `--rm`:
 - the container is removed automatically
-- **all data remains** in  
+- all data remains in  
   `C:\Users\DSouzaJ\Code\annif-subjectindexer`
 
 ---
@@ -218,17 +270,6 @@ No re-download is required unless files were deleted.
 
 ---
 
-## Notes & expected warnings
-
-### Persistence
-Only files under `/annif-projects` persist.  
-Anything written elsewhere in the container is discarded on exit.
-
-### Backend warnings
-Warnings about missing backends are expected unless you build a custom Annif image.
-
----
-
 ## Optional: update the Annif Docker image
 
 ```bat
@@ -239,10 +280,11 @@ docker pull quay.io/natlibfi/annif:latest
 
 ## Summary
 
-- ✔ Windows-friendly
-- ✔ No PyPI install required
-- ✔ Reproducible and persistent
-- ✔ Transparent about backend limitations
-- ✔ Aligned with GermEval 2025 baselines
+- Windows-friendly
+- No PyPI install required
+- Reproducible and persistent
+- Transparent about backend limitations
+- Aligned with GermEval 2025 baselines
 
-This README describes the **recommended baseline setup** for running Annif in the context of **LLMs4Subjects / GermEval 2025**.
+This README describes the recommended baseline setup for running Annif in the context of
+**LLMs4Subjects / GermEval 2025**.
