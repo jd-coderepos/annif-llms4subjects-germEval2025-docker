@@ -71,11 +71,39 @@ annif --version
 
 ---
 
-## 6) Download GermEval 2025 Annif projects
+## 6) Download GermEval 2025 Annif projects (supported backends)
+
+This setup documents **only the projects that can be executed with the released Annif backends**:
+
+- **Omikuji Bonsai**
+- **MLLM**
+- **BM ensemble** (Bonsai + MLLM)
+
+⚠️ **Important:**  
+BM ensemble projects depend on **both Bonsai and MLLM**. Downloading the ensemble alone will cause runtime errors.
+
+### Recommended (safe default)
 
 ```bash
-annif download --trust-repo "gnd-*" NatLibFi/Annif-LLMs4Subjects-GermEval2025-data
+annif download --trust-repo "gnd-bonsai-*"      NatLibFi/Annif-LLMs4Subjects-GermEval2025-data
+annif download --trust-repo "gnd-mllm-*"        NatLibFi/Annif-LLMs4Subjects-GermEval2025-data
+annif download --trust-repo "gnd-bm-ensemble-*" NatLibFi/Annif-LLMs4Subjects-GermEval2025-data
 ```
+
+Verify:
+```bash
+annif list-projects
+```
+
+### Note on other models
+
+The Hugging Face repository also contains projects such as:
+
+- `gnd-bmx-ensemble-*`
+- `gnd-bmx-llm_ensemble-*`
+- `gnd-xtransformer-*`
+
+These rely on backends (e.g. **XTransformer**, **LLM-ranked ensembles**) that are **not released as part of Annif’s traditional backend distribution** and therefore **cannot be run** with the official Annif Docker image. They are included for **evaluation completeness**, not for execution here.
 
 ---
 
